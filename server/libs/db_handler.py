@@ -12,6 +12,7 @@ class DBResponse:
         :rtype: DBResponse
         """
         self.status = status
+
         self.data = data
 
 
