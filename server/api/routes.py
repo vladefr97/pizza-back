@@ -20,9 +20,11 @@ def make_order():
         order_info = order['orderInformation']
         db_handler.connect()
         order_id = db_handler.execute_insert(
-            query='insert into user_order (o_date, o_u_id, o_address) values (%s,%s,%s)',
+            query='insert into user_order (o_date, o_u_id, o_address,o_sum,o_currency) values (%s,%s,%s,%s,%s)',
             data=[(order['timestamp'],
                    order_info['userId'],
+                   order_info['totalSum'],
+                   order_info['currency'],
                    f"{service_info['address']} {service_info['apartment']} "
                    f"{service_info['floor']}")]).data['lastid']
 
