@@ -30,11 +30,15 @@ def make_order():
 
         for item in order['items']:
             db_handler.execute_insert(
-                query='insert into order_has_product (order_o_id,product_p_id,product_count) values(%s,%s,%s)',
-                data=[(order_id, item['product']['id'], item['count'])])
+                query='insert into order_has_product (order_o_id,product_p_id,product_count,multiplier,params) values(%s,%s,%s,%s,%s)',
+                data=[(order_id, item['product']['id'], item['count'],
+                       item['product']['priceMultiplier'],
+                       json.dumps(item['product']['params'])
+                       )])
 
-        print('order done')
         db_handler.close_connection()
+        return json.dumps({'status': "OK"})
+
     except BaseException as e:
         e = str(e)
         print(e)
