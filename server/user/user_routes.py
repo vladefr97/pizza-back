@@ -66,3 +66,37 @@ def login():
 
     except BaseException as e:
         pass
+
+
+@user.route('/<user_id>/orders')
+def get_order(user_id):
+    db_handler.connect()
+    user_id = int(user_id)
+    request = "select p.p_id,p.p_name , p.p_descr, p.p_price, ohp.product_count,ohp.multiplier,ohp.params, uo.o_date,uo.o_sum,uo.o_currency  from product as p " \
+              "inner join order_has_product as ohp on ohp.product_p_id = p.p_id " \
+              "inner join user_order as uo on uo.o_id=ohp.order_o_id where uo.o_id=%s"
+
+    user_orders = db_handler.execute_select(query='select * from user_order where o_u_id=%s',
+                                            data=[(user_id)]).data
+    ret_data = []
+    # TODO: елать нормально в for
+    index = 0
+    for order in user_orders:
+        order_data = db_handler.execute_select(query=request, data=[(order[0])]).data
+        ret_data.append({'orderItems': [{'product': {'id': product[0], 'name': product[1], 'description': product[2],
+                                                     'price': product[3], 'priceMultiplier': product[5],
+                                                     'params':json.loads(product[6]),
+                                                     'imgName': product[0]},
+                                         'count': product[4]}
+                                        for product in
+                                        order_data],
+                         'timestamp': user_orders[0][1],
+                         'price': float(user_orders[index][3]),
+                         'currency': user_orders[index][4]
+                         })
+        index += 1
+        print(ret_data)
+
+    db_handler.close_connection()
+    ret  = json.dumps(ret_data)
+    return ret
